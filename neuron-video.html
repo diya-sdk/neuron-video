@@ -1,0 +1,104 @@
+<link rel="import" href="../neuron-base/neuron-base.html">
+
+<polymer-element name="neuron-video" attributes="width height" extends="neuron-base">
+  <template>
+	<style>
+	  :host{
+		  display: flex;
+	  }
+	  #videostream{
+		  flex: 1;
+		  display: flex;
+		  align-items: center;
+		  flex-direction: column;
+		  justify-content: center;
+	  }
+	  #buttons{
+		  flex: 1;
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+	  }
+	</style>
+	
+	<div id="videostream">
+	  <video id="basicStream" class="videostream"  width="{{width}}" height="{{height}}" autoplay></video> 
+	</div>
+	<div id="buttons">
+	  <paper-button on-tap="{{startVideo}}">Capture video</paper-button>
+	  <paper-button on-tap="{{stopVideo}}">Stop</paper-button>
+	</div>
+  </template>
+  
+  <script>
+	function errorCallback(e) {
+		if (e.code == 1) {
+			alert('User denied access to their camera');
+		} else {
+			alert('getUserMedia() not supported in your browser.');
+		}
+	}
+	
+	Polymer({
+		
+		ready: function(){
+			this.super();
+			var that = this;
+			this.width = 320;
+			this.height = 240;
+
+			this.incr = 0.01;
+			
+			this.video = this.$.basicStream;
+			this.localMediaStream = null;
+
+			setTimeout(function() {
+				that.sendImage();
+			}, 1000);
+		},
+		
+		sendImage: function(){
+			var that = this;
+			if(this.neuron) { 
+				for(var i = 0; i<this.width*this.height; i++) {
+					this.neuronValues[i]+= this.incr;
+				}
+				this.sendAll();
+			}
+			
+			setTimeout(function() {
+				that.sendImage();
+			}, 1000);			
+		},
+		
+		startVideo: function() {
+			var that=this;
+			if (navigator.getUserMedia) {
+				navigator.getUserMedia('video', function(stream) {
+					that.video.src = stream;
+					that.video.controls = true;
+					that.video.maxWidth=240;
+					that.video.maxHeight=180;
+					that.localMediaStream = stream;
+				}, errorCallback);
+			} else if (navigator.webkitGetUserMedia) {
+				navigator.webkitGetUserMedia({video: true}, function(stream) {
+					that.video.src = window.URL.createObjectURL(stream);
+					that.video.controls = true;
+					that.video.maxWidth=240;
+					that.video.maxHeight=180;
+					that.localMediaStream = stream;
+				}, errorCallback);
+			} else {
+				errorCallback({target: that.video});
+			}	  
+		},
+		stopVideo: function() {
+			this.video.pause();
+			this.localMediaStream.stop(); // Doesn't do anything in Chrome.
+		}	  
+		
+	});
+	
+  </script>
+</polymer-element>

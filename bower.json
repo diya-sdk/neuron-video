@@ -1,0 +1,21 @@
+{
+	"name": "neuron-video",
+	"version": "0.8.0",
+	"homepage": "https://github.com/partnering/neuron-video",
+	"description": "video streaming",
+	"authors": [
+		"Antoine de Rengervé <antoine.derengerve@partnering.fr>
+	],
+	"main": "neuron-video.html",
+	"license": "LGPL v3",
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	],
+	"dependencies": {
+		"polymer": "Polymer/polymer"
+	}
+}
