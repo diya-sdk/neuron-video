@@ -17,6 +17,7 @@ Polymer({
 		this.height = 240;
 		this.incr = 1;
 		this.video = this.$.basicStream;
+		this.ctx1 = this.$.c1.getContext("2d");
 		this.localMediaStream = null;
 		this.imgId  = 5210;
 		this.rtcSizeMax = 16000;
@@ -38,20 +39,28 @@ Polymer({
 		/** overclock to allow sending chunks rapidly **/
 		this.frequency=1000;
 	},
+	computeFrame: function() {
+		this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+		var frame = this.ctx1.getImageData(0, 0, this.width, this.height);
+		var l = frame.data.length;
+		// console.log(l);
+		for (var i = 0; i < l; i++) {
+			var a = i*4;
+			this.varTab[i] = (frame.data[a]+frame.data[a + 1]+frame.data[a + 2])/(3*255);
+		}
+		// console.log(this.varTab);
+		return;
+	},	
 	sendImage: function () {
 		var that = this;
-		console.log("enter in sendimage :"+this.nbChunks);
 		if (this.neuron) {
+			this.computeFrame();
 			if(this.nbChunks>1) {
 
 				// this.splice('neuronValues',1,0, this.imgId);
 				this.neuronValues[0] = this.imgId;
 
-				for(var c=0; c<this.nbChunks; c++) {
-					console.log(c);
-					// console.log(this.neuronValues);
-					// console.log(this.varTab);
-					
+				for(var c=0; c<this.nbChunks; c++) {					
 					// this.splice('neuronValues',1,1, c);
 					this.neuronValues[1] = c;
 					
@@ -66,6 +75,10 @@ Polymer({
 					}
 					this.sendAll();
 				}
+				// console.log("varTab");
+				// console.log(this.varTab);
+				// console.log("neuronValues");
+				// console.log(this.neuronValues);
 				this.imgId++;
 			}
 			else {
@@ -82,7 +95,7 @@ Polymer({
 		}
 		setTimeout(function () {
 			that.sendImage();
-		}, 1000);
+		}, 200);
 	},
 	startVideo: function () {
 		var that = this;
