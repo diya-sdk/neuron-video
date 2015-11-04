@@ -24,10 +24,10 @@
 	  }
 	</style>
   <template>
-	
+
 	<div id="videostream">
-	  <video id="basicStream" class="videostream" width="{{width}}" height="{{height}}" autoplay=""></video>
-      <canvas id="c1" width="320" height="240" style="display:none;"/>
+	  <video id="basicStream" class="videostream" width="{{width}}" height="{{height}}" autoplay="" style="display:none;"></video>
+      <canvas id="c1" width="{{width}}" height="{{height}}" style="display:none;"/>
 	</div>
 	<div id="buttons">
 	  <paper-button on-tap="startVideo">Capture video</paper-button>

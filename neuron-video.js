@@ -19,12 +19,13 @@ Polymer({
 		this.video = this.$.basicStream;
 		this.ctx1 = this.$.c1.getContext("2d");
 		this.localMediaStream = null;
-		this.imgId  = 5210;
+		this.imgId  = 0;
 		this.rtcSizeMax = 16000;
 		this.sizeImg = this.width * this.height;
 		this.nbChunks = Math.ceil((this.sizeImg) /this.rtcSizeMax);
 		this.sizeLastChunk = (this.sizeImg) % this.rtcSizeMax;
 		this.varTab = [];
+		this.imgPeriod = 200;
 		for (var i = 0; i < this.sizeImg; i++) {
 			this.varTab.push(i/(this.width * this.height));
 		}
@@ -34,7 +35,7 @@ Polymer({
 		console.log("size : "+this.varTab.size);
 		setTimeout(function () {
 			that.sendImage();
-		}, 1000);
+		}, this.imgPeriod);
 
 		/** overclock to allow sending chunks rapidly **/
 		this.frequency=1000;
@@ -42,17 +43,20 @@ Polymer({
 	computeFrame: function() {
 		this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
 		var frame = this.ctx1.getImageData(0, 0, this.width, this.height);
-		var l = frame.data.length;
+		var data = frame.data;
+		var a;
+		var coeff1 = 0.34/255, coeff2 = 0.5/255, coeff3=0.16/255;
 		// console.log(l);
-		for (var i = 0; i < l; i++) {
-			var a = i*4;
-			this.varTab[i] = (frame.data[a]+frame.data[a + 1]+frame.data[a + 2])/(3*255);
+		for (var i = 0; i < data.length; i++) {
+			a = i*4;
+			this.varTab[i] = coeff1*data[a]+coeff2*data[a + 1]+coeff3*data[a + 2];
 		}
 		// console.log(this.varTab);
 		return;
-	},	
+	},
 	sendImage: function () {
 		var that = this;
+		var i,c;
 		if (this.neuron) {
 			this.computeFrame();
 			if(this.nbChunks>1) {
@@ -60,18 +64,19 @@ Polymer({
 				// this.splice('neuronValues',1,0, this.imgId);
 				this.neuronValues[0] = this.imgId;
 
-				for(var c=0; c<this.nbChunks; c++) {					
+				for(c=0; c<this.nbChunks; c++) {
 					// this.splice('neuronValues',1,1, c);
 					this.neuronValues[1] = c;
-					
+
 					var sizeChunk = (c==(this.nbChunks-1)? this.sizeLastChunk:this.rtcSizeMax);
-					console.log(sizeChunk);
-					for (var i = 0; i < sizeChunk; i++) {
+					// console.log(sizeChunk);
+					var row = c*this.rtcSizeMax;
+					for (i = 0; i < sizeChunk; i++) {
 						// console.log('neuronValues' + ('.' + (i+2)));
 						// console.log(c*this.rtcSizeMax+i);
-						
+
 						// this.splice('neuronValues',1,i+2, this.varTab[c*this.rtcSizeMax+i]);
-						this.neuronValues[i+2] = this.varTab[c*this.rtcSizeMax+i];
+						this.neuronValues[i+2] = this.varTab[row+i];
 					}
 					this.sendAll();
 				}
@@ -95,7 +100,7 @@ Polymer({
 		}
 		setTimeout(function () {
 			that.sendImage();
-		}, 200);
+		}, this.imgPeriod);
 	},
 	startVideo: function () {
 		var that = this;
@@ -103,16 +108,16 @@ Polymer({
 			navigator.getUserMedia('video', function (stream) {
 				that.video.src = stream;
 				that.video.controls = true;
-				that.video.maxWidth = 240;
-				that.video.maxHeight = 180;
+				// that.video.maxWidth = 240;
+				// that.video.maxHeight = 180;
 				that.localMediaStream = stream;
 			}, errorCallback);
 		} else if (navigator.webkitGetUserMedia) {
 			navigator.webkitGetUserMedia({ video: true }, function (stream) {
 				that.video.src = window.URL.createObjectURL(stream);
 				that.video.controls = true;
-				that.video.maxWidth = 240;
-				that.video.maxHeight = 180;
+				// that.video.maxWidth = 240;
+				// that.video.maxHeight = 180;
 				that.localMediaStream = stream;
 			}, errorCallback);
 		} else {
@@ -125,4 +130,3 @@ Polymer({
 	},
 	behaviors: [DiyaBehaviors.Neuron]
 });
-
