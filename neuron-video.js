@@ -40,50 +40,29 @@ Polymer({
 		/** overclock to allow sending chunks rapidly **/
 		this.frequency=1000;
 	},
-	computeFrame: function() {
-		this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
-		var frame = this.ctx1.getImageData(0, 0, this.width, this.height);
-		var data = frame.data;
-		var a;
-		var coeff1 = 0.34/255, coeff2 = 0.5/255, coeff3=0.16/255;
-		// console.log(l);
-		for (var i = 0; i < data.length; i++) {
-			a = i*4;
-			this.varTab[i] = coeff1*data[a]+coeff2*data[a + 1]+coeff3*data[a + 2];
-		}
-		// console.log(this.varTab);
-		return;
-	},
 	sendImage: function () {
 		var that = this;
 		var i,c;
 		if (this.neuron) {
-			this.computeFrame();
+			this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+			var frame = this.ctx1.getImageData(0, 0, this.width, this.height);
+			var data = frame.data;
+			var a;
+			var coeff1 = 0.34/255, coeff2 = 0.5/255, coeff3=0.16/255;
 			if(this.nbChunks>1) {
-
-				// this.splice('neuronValues',1,0, this.imgId);
 				this.neuronValues[0] = this.imgId;
 
 				for(c=0; c<this.nbChunks; c++) {
-					// this.splice('neuronValues',1,1, c);
 					this.neuronValues[1] = c;
 
 					var sizeChunk = (c==(this.nbChunks-1)? this.sizeLastChunk:this.rtcSizeMax);
-					// console.log(sizeChunk);
-					var row = c*this.rtcSizeMax;
+					var row = c*this.rtcSizeMax*4;
 					for (i = 0; i < sizeChunk; i++) {
-						// console.log('neuronValues' + ('.' + (i+2)));
-						// console.log(c*this.rtcSizeMax+i);
-
-						// this.splice('neuronValues',1,i+2, this.varTab[c*this.rtcSizeMax+i]);
-						this.neuronValues[i+2] = this.varTab[row+i];
+						a = i*4;
+						this.neuronValues[i+2] = coeff1*data[row+a]+coeff2*data[row+a+1]+coeff3*data[row+a+2];
 					}
 					this.sendAll();
 				}
-				// console.log("varTab");
-				// console.log(this.varTab);
-				// console.log("neuronValues");
-				// console.log(this.neuronValues);
 				this.imgId++;
 			}
 			else {
