@@ -1,10 +1,10 @@
 {
 	"name": "neuron-video",
 	"version": "0.8.0",
-	"homepage": "https://github.com/partnering/neuron-video",
-	"description": "video streaming",
+	"homepage": "https://github.com/partnering/video-rtc",
+	"description": "A video component with RTC input",
 	"authors": [
-		"Antoine de Rengervé <antoine.derengerve@partnering.fr>
+		"Jerome Fellus <jerome.fellus@partnering.fr>"
 	],
 	"main": "neuron-video.html",
 	"license": "LGPL v3",

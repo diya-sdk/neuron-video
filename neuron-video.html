@@ -1,38 +1,27 @@
 <link rel="import" href="../neuron-base/neuron-base.html">
 
-<!--
-    TODO(polyup): Inheriting from other custom elements is not yet supported.
-    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
- -->
 <dom-module id="neuron-video">
   <style>
-	  :host{
-		  display: flex;
-	  }
-	  #videostream{
-		  flex: 1;
-		  display: flex;
-		  align-items: center;
-		  flex-direction: column;
-		  justify-content: center;
-	  }
-	  #buttons{
-		  flex: 1;
-		  display: flex;
-		  align-items: center;
-		  justify-content: center;
-	  }
 	</style>
   <template>
-
-	<div id="videostream">
-	  <video id="basicStream" class="videostream" width="{{width}}" height="{{height}}" autoplay="" style="display:none;"></video>
-      <canvas id="c1" width="{{width}}" height="{{height}}" style="display:none;"/>
-	</div>
-	<div id="buttons">
-	  <paper-button on-tap="startVideo">Capture video</paper-button>
-	  <paper-button on-tap="stopVideo">Stop</paper-button>
-	</div>
+	  <video id="video" width="{{width}}" height="{{height}}" autoplay=""></video>
   </template>
 </dom-module>
-<script src="neuron-video.js"> </script>
+<script>
+Polymer({
+	is: 'neuron-video',
+	properties: {
+		height: { notify: true },
+		width: { notify: true }
+	},
+	ready: function () {
+		var that = this;
+	},
+
+	setStream: function(dnId, stream) {
+		this.$.video.src = stream;
+	},
+
+	behaviors: [DiyaBehaviors.Neuron]
+});
+</script>

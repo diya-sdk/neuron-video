@@ -1,2 +1,0 @@
-# neuron-video
-Video streaming
