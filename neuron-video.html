@@ -2,24 +2,27 @@
 
 <dom-module id="neuron-video">
   <style>
+  video { width:100%; height:100%;}
 	</style>
   <template>
 	  <video id="video" width="{{width}}" height="{{height}}" autoplay=""></video>
   </template>
 </dom-module>
 <script>
+
 Polymer({
 	is: 'neuron-video',
 	properties: {
-		height: { notify: true },
-		width: { notify: true }
+		width: { notify: true, value:640 },
+		height: { notify: true, value:480 }
 	},
 	ready: function () {
 		var that = this;
+
 	},
 
 	setStream: function(dnId, stream) {
-		this.$.video.src = stream;
+		this.$.video.src = window.URL.createObjectURL(stream);
 	},
 
 	behaviors: [DiyaBehaviors.Neuron]
