@@ -1,73 +1,74 @@
 <link rel="import" href="../neuron-base/neuron-base.html">
 
 <dom-module id="neuron-video">
-	<style>
-		:host { display: block; position: relative; }
-		video { width: 100%; height: 100%; }
-		a { display: none; }
-		div { position: absolute; top: 0; left: 0; }
-	</style>
-  <template>
-	<video id="video" width="{{width}}" height="{{height}}" autoplay=""></video>
-	<a id="download"></a>
-  </template>
+	<template>
+		<style>
+			:host { display: block; position: relative; }
+			video { width: 100%; height: 100%; }
+			a { display: none; }
+			div { position: absolute; top: 0; left: 0; }
+		</style>
+
+		<video id="video" width="{{width}}" height="{{height}}" autoplay=""></video>
+		<a id="download"></a>
+	</template>
 </dom-module>
 <script>
 
-Polymer({
-	is: 'neuron-video',
-	properties: {
-		width: { notify: true, value:640 },
-		height: { notify: true, value:480 },
-		stream: { notify: true, value: null }
-	},
-	ready: function () {
-		var that = this;
+	Polymer({
+		is: 'neuron-video',
+		properties: {
+			width: { notify: true, value:640 },
+			height: { notify: true, value:480 },
+			stream: { notify: true, value: null }
+		},
+		ready: function () {
+			var that = this;
 
-	},
+		},
 
-	setStream: function(dnId, stream) {
-		this.stream = stream;
-		this.$.video.src = window.URL.createObjectURL(stream);
-	},
+		setStream: function(dnId, stream) {
+			this.stream = stream;
+			this.$.video.src = window.URL.createObjectURL(stream);
+		},
 
-	startRecording: function() {
-		var that = this;
-		if(!this.stream) return ;
+		startRecording: function() {
+			var that = this;
+			if(!this.stream) return ;
 
-		var options = { mimeType: 'video/webm' }
-		this._recorder = new MediaRecorder(this.stream, options);
-		this._recordedChunks = [];
-		this._recorder.ondataavailable = function(event) {
-			if (event.data.size > 0) {
-				that._recordedChunks.push(event.data);
+			var options = { mimeType: 'video/webm' }
+			this._recorder = new MediaRecorder(this.stream, options);
+			this._recordedChunks = [];
+			this._recorder.ondataavailable = function(event) {
+				if (event.data.size > 0) {
+					that._recordedChunks.push(event.data);
+				}
 			}
-		}
 
-		this._recorder.start();
+			this._recorder.start();
 
-	},
+		},
 
-	stopRecording: function() {
-		if(!this._recorder) return ;
+		stopRecording: function() {
+			if(!this._recorder) return ;
 
-		this._recorder.stop();
-		this._recorder = null;
-	},
+			this._recorder.stop();
+			this._recorder = null;
+		},
 
-	downloadRecord: function() {
-		if(!this._recordedChunks) return ;
-		console.log(this._recordedChunks);
-		var blob = new Blob(this._recordedChunks, { type: 'video/webm' });
-		var url = URL.createObjectURL(blob);
-		
-		var a = this.$.download;
-		a.href = url;
-		a.download = 'record.webm';
-		a.click()
-		//window.URL.revokeObjectURL(url);
-	},
+		downloadRecord: function() {
+			if(!this._recordedChunks) return ;
+			console.log(this._recordedChunks);
+			var blob = new Blob(this._recordedChunks, { type: 'video/webm' });
+			var url = URL.createObjectURL(blob);
 
-	behaviors: [DiyaBehaviors.Neuron]
-});
+			var a = this.$.download;
+			a.href = url;
+			a.download = 'record.webm';
+			a.click()
+			//window.URL.revokeObjectURL(url);
+		},
+
+		behaviors: [DiyaBehaviors.Neuron]
+	});
 </script>
