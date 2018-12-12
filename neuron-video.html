@@ -28,7 +28,11 @@ Polymer({
 
 	setStream: function(dnId, stream) {
 		this.stream = stream;
-		this.$.video.src = window.URL.createObjectURL(stream);
+		try {
+			this.$.video.srcObject = stream;
+		} catch (error) {
+			this.$.video.src = window.URL.createObjectURL(stream);
+		}
 	},
 
 	startRecording: function() {
